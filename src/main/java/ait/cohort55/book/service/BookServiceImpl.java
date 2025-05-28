@@ -66,28 +66,43 @@ public class BookServiceImpl implements BookService {
         return modelMapper.map(book, BookDto.class);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Iterable<BookDto> findBooksByAuthor(String authorName) {
-        return null;
+        return bookRepository.findBooksByAuthorsNameIgnoreCase(authorName)
+                .map(b -> modelMapper.map(b, BookDto.class))
+                .toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Iterable<BookDto> findBooksByPublisher(String publisherName) {
-        return null;
+        return bookRepository.findBooksByPublisherPublisherName(publisherName)
+                .map(b -> modelMapper.map(b, BookDto.class))
+                .toList();
     }
 
     @Override
     public Iterable<AuthorDto> findBookAuthors(String isbn) {
-        return null;
+        Book book = bookRepository.findById(isbn).orElseThrow(NotFoundException::new);
+        return book.getAuthors().stream()
+                .map(a -> modelMapper.map(a, AuthorDto.class))
+                .toList();
     }
 
     @Override
     public Iterable<String> findPublishersByAuthor(String authorName) {
-        return null;
+        return publisherRepository.findPublishersByAuthor(authorName);
     }
 
+    @Transactional
     @Override
     public AuthorDto deleteAuthor(String authorName) {
-        return null;
+        Author author = authorRepository.findById(authorName).orElseThrow(NotFoundException::new);
+//        bookRepository.findBooksByAuthorsNameIgnoreCase(authorName)
+//                .forEach(b -> bookRepository.delete(b));
+        bookRepository.deleteBooksByAuthorsNameIgnoreCase(authorName);
+        authorRepository.delete(author);
+        return modelMapper.map(author, AuthorDto.class);
     }
 }
