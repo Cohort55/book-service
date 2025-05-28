@@ -50,14 +50,20 @@ public class BookServiceImpl implements BookService {
         return modelMapper.map(book, BookDto.class);
     }
 
+    @Transactional
     @Override
     public BookDto deleteBookByIsbn(String isbn) {
-        return null;
+        Book book = bookRepository.findById(isbn).orElseThrow(NotFoundException::new);
+        bookRepository.deleteById(isbn);
+        return modelMapper.map(book, BookDto.class);
     }
 
+    @Transactional
     @Override
     public BookDto updateBookTitle(String isbn, String title) {
-        return null;
+        Book book = bookRepository.findById(isbn).orElseThrow(NotFoundException::new);
+        book.setTitle(title);
+        return modelMapper.map(book, BookDto.class);
     }
 
     @Override
